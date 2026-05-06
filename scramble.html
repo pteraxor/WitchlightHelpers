@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Letter Path Animation</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            font-size: 70px;
+            color: #e3decc;
+            background-color: #777;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.4), /* top highlight */
+            0 -1px 0 rgba(0,0,0,0.6); /* bottom shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 40px;
+            background: #f5f5f5;
+        }
+
+        #stage {
+            position: relative;
+            width: 900px;
+            height: 600px;
+            padding: 70px 150px;
+            border: 2px dashed #ccc;
+            background: #7b6656;
+        }
+
+        .letter {
+            position: absolute;
+            font-size: 56px;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: transform 1.2s cubic-bezier(0.68,-0.55,0.27,1.55);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+ <body>
+        <h2>Letter Movement</h2>
+        <button onclick="animateLetters()">Animate</button>
+        <div id="stage"></div>
+        <script>
+            class LetterObject {
+                constructor(startXPos, startYPos, endXPos, endYPos, letterValue) {
+                    this.startXPos = startXPos;
+                    this.startYPos = startYPos;
+                    this.endXPos = endXPos;
+                    this.endYPos = endYPos;
+                    this.letterValue = letterValue;
+                }
+            }
+
+            const gridSize = 80;
+
+            const letters = [
+                new LetterObject(1, 1, 1, 5, 'C'), new LetterObject(2, 1, 1, 4, 'h'), new LetterObject(3, 1, 4, 1, 'e'), new LetterObject(4, 1, 8, 4, 's'), new LetterObject(5, 1, 4, 5, 'n'), new LetterObject(6, 1, 7, 4, 'a'),
+                new LetterObject(1, 2, 5, 4, 'G'), new LetterObject(2, 2, 4, 4, 'r'), new LetterObject(3, 2, 3, 4, 'u'), new LetterObject(4, 2, 1, 3, 's'), new LetterObject(5, 2, 1, 1, 's'),
+                new LetterObject(1, 3, 1, 2, 'P'), new LetterObject(2, 3, 2, 1, 'a'), new LetterObject(3, 3, 5, 2, 'r'), new LetterObject(4, 3, 2, 4, 'o'), new LetterObject(5, 3, 3, 5, 'v'),
+                new LetterObject(1, 4, 2, 2, 'R'), new LetterObject(2, 4, 2, 5, 'o'), new LetterObject(3, 4, 4, 2, 'm'), new LetterObject(4, 4, 4, 3, 'p'),
+                new LetterObject(1, 5, 3, 1, 'V'), new LetterObject(2, 5, 3, 3, 'o'), new LetterObject(3, 5, 6, 4, 'l'), new LetterObject(4, 5, 2, 3, 't'), new LetterObject(5, 5, 3, 2, 's')
+            ];
+
+            const stage = document.getElementById('stage');
+            let elements = [];
+
+            function createLetters() {
+                stage.innerHTML = '';
+                elements = [];
+
+                letters.forEach(obj => {
+                    const el = document.createElement('div');
+                    el.className = 'letter';
+                    el.textContent = obj.letterValue;
+
+                    const x = obj.startXPos * gridSize;
+                    const y = obj.startYPos * gridSize;
+
+                    el.style.transform = `translate(${x}px, ${y}px)`;
+
+                    stage.appendChild(el);
+                    elements.push(el);
+                });
+            }
+
+            function animateLetters() {
+                elements.forEach((el, i) => {
+                    const obj = letters[i];
+
+                    const startX = obj.startXPos * gridSize;
+                    const startY = obj.startYPos * gridSize;
+                    const endX = obj.endXPos * gridSize;
+                    const endY = obj.endYPos * gridSize;
+
+                    const steps = 4;
+                    const points = [];
+
+                    for (let s = 1; s <= steps; s++) {
+                        const t = s / steps;
+
+                        const interpX = startX + (endX - startX) * t;
+                        const interpY = startY + (endY - startY) * t;
+
+                        const noiseAmount = (1 - t) * 80;
+
+                        points.push({
+                            x: interpX + (Math.random() * noiseAmount - noiseAmount / 2),
+                            y: interpY + (Math.random() * noiseAmount - noiseAmount / 2)
+                        });
+                    }
+
+                    // animate through noisy points
+                    points.forEach((p, index) => {
+                        setTimeout(() => {
+                            el.style.transform = `translate(${p.x}px, ${p.y}px)`;
+                        }, index * 150 + i * 40);
+                    });
+
+                    // final snap
+                    setTimeout(() => {
+                        el.style.transform = `translate(${endX}px, ${endY}px)`;
+                    }, steps * 150 + i * 40);
+                });
+            }
+        
+            createLetters();
+        </script>
+
+    </body>
+</html>
